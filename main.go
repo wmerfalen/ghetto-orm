@@ -47,15 +47,10 @@ func main(){
   json_schema, json_error := os.ReadFile("conf.json")
   check(json_error)
 
-  var dat map[string]interface{}
-
-  if deserialize_error := json.Unmarshal(json_schema,&dat); deserialize_error != nil {
-    panic(deserialize_error)
-  }
-  data_dir := dat["data_dir"].(string)
-  pkid_file := data_dir + dat["pkid_file"].(string)
-
-  fmt.Println(data_dir,pkid_file)
+	conf := Configuration{}
+	json.Unmarshal(json_schema,&conf)
+	data_dir := conf.DataDir
+	pkid_file := data_dir + conf.PKIDFile
 
   handle, _ := os.ReadDir(data_dir)
   if handle == nil {

@@ -4,7 +4,8 @@ import (
   "regexp"
   "fmt"
   "os"
-  u "wmerfalen/ghetto-orm/users/userfactory"
+  userFactory "wmerfalen/ghetto-orm/users/userfactory"
+  "encoding/json"
 )
 
 type Configuration struct {
@@ -29,9 +30,9 @@ func file_exists(file string) bool {
 }
 func count_json_files_in_dir(dir string) int {
   var count int = 0
-  handle,err := os.ReadDir(dir)
+  handle,_ := os.ReadDir(dir)
   if handle == nil {
-    panic(err)
+    return -1
   }
   regex, _ := regexp.Compile(".json$")
   for _,entry := range handle {
@@ -43,8 +44,18 @@ func count_json_files_in_dir(dir string) int {
 }
 
 func main(){
-  const data_dir = "/Users/will/code/golang/hello/users/"
-  const pkid_name = "pkid"
+  json_schema, json_error := os.ReadFile("conf.json")
+  check(json_error)
+
+  var dat map[string]interface{}
+
+  if deserialize_error := json.Unmarshal(json_schema,&dat); deserialize_error != nil {
+    panic(deserialize_error)
+  }
+  data_dir := dat["data_dir"].(string)
+  pkid_file := data_dir + dat["pkid_file"].(string)
+
+  fmt.Println(data_dir,pkid_file)
 
   handle, _ := os.ReadDir(data_dir)
   if handle == nil {
@@ -52,9 +63,9 @@ func main(){
   }
 
   count := count_json_files_in_dir(data_dir)
-  var conf Configuration
-  conf.DataDir = data_dir
-  conf.PKIDFile = data_dir + pkid_name
-  u.Generate(50,conf.PKIDFile,data_dir + "users-" + fmt.Sprint(count + 1) + ".json")
+  if count < 0 {
+    count = 0
+  }
+  userFactory.Generate(50,pkid_file,data_dir + "users-" + fmt.Sprint(count + 1) + ".json")
   return
 }

@@ -145,7 +145,7 @@ func print_users(people []Person) {
     Print_user(value)
   }
 }
-func save_users_to_json_file(file string,users []Person) (bool, string)  {
+func SaveUsersToJsonFile(file string,users []Person) (bool, string)  {
   a,error := json.Marshal(users)
   check(error)
   bytes := []byte(a)
@@ -176,6 +176,6 @@ func Generate(count int, pkid_file string, outfile_name string){
     users = append(users,Create())
   }
   save_next_pkid(pkid_file)
-  save_users_to_json_file(outfile_name, users)
+  SaveUsersToJsonFile(outfile_name, users)
 }
 
